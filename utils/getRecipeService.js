@@ -3,7 +3,7 @@ const apiKey = "f7297ec863msh55e5e2183df88a2p1e4483jsn569f1177febd";
 
 const getRecipeById = Id => {
   let responseData;
-  responseData = fetch(`https://${apiUrl}recipes/${Id}/summary`, {
+  responseData = fetch(`https://${apiUrl}/recipes/${Id}/summary`, {
     method: "GET",
     headers: {
       "x-rapidapi-host": apiUrl,
@@ -37,4 +37,20 @@ const getRecipeService = (sKeywords, num) => {
   return responseData;
 };
 
-export { getRecipeService, getRecipeById };
+const getRandomRecipe = () => {
+  let responseData;
+  const number = 5;
+  responseData = fetch(`https://${apiUrl}/recipes/random?number=${number}`, {
+    method: "GET",
+    headers: {
+      "x-rapidapi-host": apiUrl,
+      "x-rapidapi-key": apiKey
+    }
+  })
+    .catch(error => {
+      console.log(error);
+    })
+    .then(response => response.json());
+  return responseData;
+};
+export { getRecipeService, getRecipeById, getRandomRecipe };

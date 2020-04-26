@@ -1,7 +1,20 @@
 import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout";
-import { getRecipeService, getRecipeById } from "../utils/getRecipeService";
-import { ThemeProvider, theme, Button, Flex } from "@chakra-ui/core";
+import Ingredients from "../components/Ingredients";
+import {
+  getRecipeService,
+  getRecipeById,
+  getRandomRecipe
+} from "../utils/getRecipeService";
+import {
+  Button,
+  Flex,
+  Input,
+  Spinner,
+  Text,
+  Box,
+  Image
+} from "@chakra-ui/core";
 
 const Index = () => {
   const [keyword, setKeyword] = useState("");
@@ -9,11 +22,23 @@ const Index = () => {
   const [results, setResults] = useState([]);
   const [summary, setSummary] = useState({ summary: "", id: "" });
   const [loading, setLoading] = useState(false);
+  const [random, setRandom] = useState({});
 
   useEffect(() => {
-    // Update the document title using the browser API
-    console.log("here is my bitch");
-  }, [number]);
+    setLoading(true);
+    getRandomRecipe().then(data => {
+      if (data) {
+        setRandom(data);
+        setLoading(false);
+      }
+    });
+  }, []);
+
+  console.log(random);
+
+  const updateIngredient = ingredient => {
+    setKeyword(ingredient);
+  };
 
   const updateResults = event => {
     setLoading(true);
@@ -36,72 +61,85 @@ const Index = () => {
     });
   };
 
-  const ReceipeLists = () => {
-    const lists = [];
-    results.map(function(e) {
-      lists.push(
-        <div>
-          <a
-            id={e.id}
-            title={e.title}
-            href="#"
-            onClick={event => {
-              getRecipeDetail(e.id);
-              event.preventDefault();
-            }}
-          >
-            <p>{e.title}</p>
-            <img src={e.image} />
-          </a>
-          <div
-            dangerouslySetInnerHTML={{
-              __html: summary.id === e.id ? summary.summary : ""
-            }}
-          />
-        </div>
-      );
-    });
-    return <>{lists}</>;
+  const RecipeLists = () => {
+    return (
+      <Box w="100%" p={4}>
+        {results.map((e, index) => (
+          <Box w="100%" p={4}>
+            <a
+              id={e.id}
+              title={e.title}
+              href="#"
+              key={index}
+              onClick={event => {
+                getRecipeDetail(e.id);
+                event.preventDefault();
+              }}
+            >
+              <Text fontSize="md" fontWeight="bold" mt={4} mb={4}>
+                {e.title}
+              </Text>
+              <img src={e.image} />
+            </a>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: summary.id === e.id ? summary.summary : ""
+              }}
+            />
+          </Box>
+        ))}
+      </Box>
+    );
+  };
+
+  const RenderRandomRecipe = () => {
+    return (
+      <Box>
+        {random.recipes &&
+          random.recipes.map(recipes => (
+            <Flex align="baseline" mt={2}>
+              <Image rounded="sm" src={recipes.image} />
+              <Text ml={2} fontSize="sm" fontWeight="bold">
+                {recipes.title}
+              </Text>
+            </Flex>
+          ))}
+      </Box>
+    );
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <div>
-        {loading && <div>Loading.... </div>}
-        <p>Hello Receipe</p>
-        <form
-          className="test"
-          noValidate
-          autoComplete="off"
-          onSubmit={updateResults}
-        >
-          <div>
-            <input
-              type="text"
-              onChange={event => setKeyword(event.target.value)}
-            />
-          </div>
-          <Flex mt={2} mb={1}>
-            <Button variantColor="green" size="md">
-              Go
-            </Button>
-          </Flex>
-        </form>
+    <div>
+      <form noValidate autoComplete="off" onSubmit={updateResults}>
         <div>
-          <ReceipeLists />
+          <Input
+            type="text"
+            borderColor="red"
+            onChange={event => setKeyword(event.target.value)}
+            value={keyword}
+          />
         </div>
-        {results.length > 0 && (
-          <Button
-            variantColor="green"
-            onClick={() => {
-              setNumber(5);
-            }}
-          >
-            More
+        <Ingredients updateIngredient={updateIngredient} />
+        <Flex mt={2} mb={1}>
+          <Button variantColor="green" size="md" onClick={updateResults}>
+            Go
           </Button>
-        )}
-      </div>
-    </ThemeProvider>
+        </Flex>
+      </form>
+      {loading && <Spinner />}
+      <RenderRandomRecipe />
+      <RecipeLists />
+      {results.length > 0 && (
+        <Button
+          variantColor="green"
+          onClick={() => {
+            setNumber(5);
+          }}
+        >
+          More
+        </Button>
+      )}
+    </div>
   );
 };
 
