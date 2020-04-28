@@ -39,7 +39,7 @@ const getRecipeService = (sKeywords, num) => {
 
 const getRandomRecipe = () => {
   let responseData;
-  const number = 5;
+  const number = 6;
   responseData = fetch(`https://${apiUrl}/recipes/random?number=${number}`, {
     method: "GET",
     headers: {
