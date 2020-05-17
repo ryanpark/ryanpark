@@ -19,7 +19,10 @@ const getRecipeById = Id => {
 
 const getRecipeService = (sKeywords, num) => {
   let responseData;
-  sKeywords = sKeywords.replace(/\s+/g, ",").toLowerCase();
+  sKeywords = sKeywords
+    .toString()
+    .replace(/\s+/g, ",")
+    .toLowerCase();
   responseData = fetch(
     `https://${apiUrl}/recipes/findByIngredients?number=${num}&ranking=1&ignorePantry=false&ingredients=${sKeywords}`,
     {

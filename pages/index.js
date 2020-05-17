@@ -3,12 +3,14 @@ import Layout from "../components/Layout";
 import Ingredients from "../components/Ingredients";
 import RenderRandomRecipe from "../components/RenderRandomRecipe";
 import RecipeLists from "../components/RecipeLists";
+import AsyncSelect from "react-select/async";
 
 import { getRecipeService, getRandomRecipe } from "../utils/getRecipeService";
 import { Button, Flex, Input, Spinner, Grid } from "@chakra-ui/core";
+import { flavourOptions } from "./data";
 
 const Index = () => {
-  const [keyword, setKeyword] = useState("");
+  const [keyword, setKeyword] = useState([]);
   const [number, setNumber] = useState(6);
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -26,7 +28,7 @@ const Index = () => {
   }, []);
 
   const updateIngredient = ingredient => {
-    setKeyword(ingredient);
+    setKeyword(prevIngredient => [...prevIngredient, ingredient]);
   };
 
   const updateResults = event => {
@@ -35,11 +37,33 @@ const Index = () => {
     getRecipeService(keyword, number).then(data => {
       if (data) {
         setResults(data);
+        console.log(data);
       }
       setUpdateRecipe(true);
       setLoading(false);
     });
     event.preventDefault();
+  };
+
+  const filterIngrdients = inputValue => {
+    return flavourOptions.filter(i =>
+      i.label.toLowerCase().includes(inputValue.toLowerCase())
+    );
+  };
+
+  const handleInputChange = (select, action) => {
+    const isRemoved = action.action === "remove-value";
+    if (isRemoved) {
+      setKeyword(keyword.filter(item => item !== action.removedValue.value));
+    } else {
+      setKeyword(prevIngredient => [...prevIngredient, action.option.value]);
+    }
+  };
+
+  const loadOptions = (inputValue, callback) => {
+    setTimeout(() => {
+      callback(filterIngrdients(inputValue));
+    }, 1000);
   };
 
   return (
@@ -53,11 +77,17 @@ const Index = () => {
             value={keyword}
             placeholder="Add your ingredients"
           />
+          <AsyncSelect
+            isMulti
+            defaultOptions
+            loadOptions={loadOptions}
+            onChange={handleInputChange}
+          />
         </div>
         <Ingredients updateIngredient={updateIngredient} />
         <Flex mt={2} mb={1}>
           <Button variantColor="green" size="md" onClick={updateResults}>
-            Go
+            Find
           </Button>
         </Flex>
       </form>
