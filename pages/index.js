@@ -7,7 +7,7 @@ import AsyncSelect from "react-select/async";
 
 import { getRecipeService, getRandomRecipe } from "../utils/getRecipeService";
 import { Button, Flex, Input, Spinner, Grid } from "@chakra-ui/core";
-import { flavourOptions } from "./data";
+import { flavourOptions } from "../data/data";
 
 const Index = () => {
   const [keyword, setKeyword] = useState([]);
@@ -37,7 +37,6 @@ const Index = () => {
     getRecipeService(keyword, number).then(data => {
       if (data) {
         setResults(data);
-        console.log(data);
       }
       setUpdateRecipe(true);
       setLoading(false);
